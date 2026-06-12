@@ -4,8 +4,16 @@ import tempfile
 import os
 import time
 import numpy as np
-import sounddevice as sd
-import soundfile as sf
+# import sounddevice as sd
+# import soundfile as sf
+
+try:
+    import sounddevice as sd
+    import soundfile as sf
+except OSError:
+    sd = None
+    sf = None
+    #This prevents a crash on servers without audio hardware
 from gtts import gTTS
 
 # ─── CONFIGURATION ───────────────────────────────────────────
