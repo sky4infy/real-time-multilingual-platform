@@ -1,6 +1,15 @@
 venv/
 __pycache__/
 *.pyc
-.env
-output.wav
+*.pyo
 models/
+outputs/
+*.pt
+*.pth
+*.bin
+*.onnx
+.env
+*.wav
+*.mp3
+.cache/
+*.cache
