@@ -53,12 +53,19 @@ class TTS:
     """
 
     def __init__(self):
-        print("[TTS] Initializing pyttsx3 engine...")
-        self.engine    = pyttsx3.init()
-        self.lock      = threading.Lock()
-        self._setup_engine()
-        self._list_voices()
-        print("[TTS] TTS engine ready.")
+        self.lock   = threading.Lock()
+        self.engine = None
+        self.voices = []
+        self.voice_map = {}
+
+        try:
+            print("[TTS] Initializing pyttsx3 engine...")
+            self.engine = pyttsx3.init()
+            self._setup_engine()
+            self._list_voices()
+            print("[TTS] pyttsx3 ready (local speaker fallback available).")
+        except Exception as e:
+            print(f"[TTS] pyttsx3 unavailable ({e}) — using gTTS only (fine for cloud deployment).")
 
     def _setup_engine(self):
         """Configure engine speed and volume."""
@@ -112,6 +119,9 @@ class TTS:
                 "voice_used": "Microsoft Heera"
             }
         """
+        if self.engine is None:
+            return {"success": False, "lang_code": lang_code, "latency": 0.0, "voice_used": "unavailable"}
+        ...
         if not text or not text.strip():
             return {"success": False, "lang_code": lang_code,
                     "latency": 0.0, "voice_used": None}
