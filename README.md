@@ -1,3 +1,13 @@
+---
+title: Real-Time Multilingual Communication Platform
+emoji: 🌐
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: 6.17.3
+app_file: app.py
+pinned: false
+---
 # Real-Time Multilingual Communication Platform
 
 A zero-cost, open-source proof-of-concept for real-time voice-to-voice 
