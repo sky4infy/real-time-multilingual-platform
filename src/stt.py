@@ -44,6 +44,22 @@ class STT:
         self.model_size = model_size
         print(f"[STT] Whisper '{model_size}' loaded successfully.")
 
+        #  improvement, eleminate hallucinations
+    def detect_language_constrained(self, audio: np.ndarray, allowed_languages: list) -> str:
+        """
+        Detect language but only choose from allowed_languages.
+        Prevents Whisper from hallucinating random languages
+        (Spanish, Turkish, Greek) on short/noisy audio clips.
+        """
+        audio_padded = whisper.pad_or_trim(audio)
+        mel = whisper.log_mel_spectrogram(audio_padded).to(self.model.device)
+        _, probs = self.model.detect_language(mel)
+
+        # filter to only allowed languages, pick highest probability
+        filtered = {lang: probs.get(lang, 0.0) for lang in allowed_languages}
+        best_lang = max(filtered, key=filtered.get)
+        return best_lang
+
     def transcribe(self, audio: np.ndarray, language: str = None) -> dict:
         """
         Transcribe audio to text.

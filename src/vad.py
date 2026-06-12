@@ -7,9 +7,15 @@ import threading
 # ─── CONFIGURATION ───────────────────────────────────────────
 SAMPLE_RATE     = 16000   # Whisper expects 16kHz
 CHUNK_SAMPLES   = 512     # SileroVAD REQUIRES exactly 512 samples at 16kHz
-SILENCE_THRESH  = 6       # consecutive silent chunks before closing segment
-VAD_THRESHOLD   = 0.4     # silero confidence threshold (0.0–1.0)
-MIN_SPEECH_CHUNKS = 4     # ignore segments shorter than this (filters clicks/noise)
+# SILENCE_THRESH  = 6       # consecutive silent chunks before closing segment
+# VAD_THRESHOLD   = 0.4     # silero confidence threshold (0.0–1.0)
+# MIN_SPEECH_CHUNKS = 4     # ignore segments shorter than this (filters clicks/noise)
+
+
+# Improvement: Tune VAD to capture longer, more complete segments
+SILENCE_THRESH    = 12   # wait longer before closing segment — captures full sentences
+VAD_THRESHOLD     = 0.5  # slightly stricter — reduces background noise pickup
+MIN_SPEECH_CHUNKS = 10   # ignore segments shorter than ~0.3s
 
 
 class VAD:
