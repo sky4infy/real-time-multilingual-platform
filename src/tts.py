@@ -6,6 +6,7 @@ import time
 import numpy as np
 import sounddevice as sd
 import soundfile as sf
+from gtts import gTTS
 
 # ─── CONFIGURATION ───────────────────────────────────────────
 SAMPLE_RATE = 22050   # standard TTS output sample rate
@@ -138,29 +139,70 @@ class TTS:
         t.start()
         return t
 
+    # def save_to_file(self, text: str, lang_code: str = "en",
+    #                  filepath: str = "output.wav") -> dict:
+    #     """
+    #     Save TTS audio to a WAV file instead of playing it.
+    #     Used by Gradio UI to return audio for playback in browser.
+    #     """
+    #     t_start = time.time()
+    #     voice   = self._get_voice_for_lang(lang_code)
+
+    #     with self.lock:
+    #         if voice:
+    #             self.engine.setProperty("voice", voice.id)
+    #         self.engine.save_to_file(text, filepath)
+    #         self.engine.runAndWait()
+
+    #     latency = round(time.time() - t_start, 2)
+    #     return {
+    #         "success":    os.path.exists(filepath),
+    #         "filepath":   filepath,
+    #         "lang_code":  lang_code,
+    #         "latency":    latency,
+    #         "voice_used": voice.name if voice else "default"
+    #     }
+
     def save_to_file(self, text: str, lang_code: str = "en",
-                     filepath: str = "output.wav") -> dict:
+                 filepath: str = "output.wav") -> dict:
         """
-        Save TTS audio to a WAV file instead of playing it.
-        Used by Gradio UI to return audio for playback in browser.
+        Save TTS audio to a file using gTTS (Google TTS).
+        pyttsx3's save_to_file produces empty files on Windows (SAPI5 bug),
+        so gTTS is used for file output. Falls back to pyttsx3 if offline.
         """
         t_start = time.time()
-        voice   = self._get_voice_for_lang(lang_code)
 
-        with self.lock:
-            if voice:
-                self.engine.setProperty("voice", voice.id)
-            self.engine.save_to_file(text, filepath)
-            self.engine.runAndWait()
+        # gTTS uses different code for Chinese
+        gtts_lang = "zh-CN" if lang_code == "zh" else lang_code
 
-        latency = round(time.time() - t_start, 2)
-        return {
-            "success":    os.path.exists(filepath),
-            "filepath":   filepath,
-            "lang_code":  lang_code,
-            "latency":    latency,
-            "voice_used": voice.name if voice else "default"
-        }
+        mp3_path = filepath.replace(".wav", ".mp3")
+
+        try:
+            tts_obj = gTTS(text=text, lang=gtts_lang)
+            tts_obj.save(mp3_path)
+
+            success = os.path.exists(mp3_path) and os.path.getsize(mp3_path) > 100
+            latency = round(time.time() - t_start, 2)
+
+            return {
+                "success":    success,
+                "filepath":   mp3_path,
+                "lang_code":  lang_code,
+                "latency":    latency,
+                "voice_used": "gTTS"
+            }
+
+        except Exception as e:
+            print(f"[TTS] gTTS failed ({e}), falling back to pyttsx3 speak (audio plays on server, not browser)")
+            # fallback — at least speak it on the server
+            self.speak(text, lang_code)
+            return {
+                "success":    False,
+                "filepath":   None,
+                "lang_code":  lang_code,
+                "latency":    round(time.time() - t_start, 2),
+                "voice_used": "pyttsx3 (server speaker only)"
+            }
 
     def get_available_languages(self) -> list:
         """Return list of language codes that have a mapped voice."""
