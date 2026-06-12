@@ -1,39 +1,43 @@
 # Real-Time Multilingual Communication Platform
 
-A real-time voice-to-voice multilingual communication system.
+A zero-cost, open-source proof-of-concept for real-time voice-to-voice 
+translation, built for Lensara Technologies (Architecture 1 — Demo).
 
 ## Architecture
+Microphone → VAD (SileroVAD) → Speech-to-Text (Whisper) → 
+Translation (Helsinki-NLP) → Text-to-Speech (gTTS) → Audio Output
 
-Speech Input
-→ Voice Activity Detection
-→ Speech-to-Text
-→ Translation
-→ Text-to-Speech
-→ Audio Output
+## Setup
+
+\`\`\`bash
+python -m venv venv
+venv\Scripts\activate          # Windows
+pip install -r requirements.txt
+\`\`\`
+
+## Run the demo
+
+\`\`\`bash
+python app.py
+\`\`\`
+
+Open http://127.0.0.1:7860 in your browser.
+
+## How it works
+- Two participant panels (A and B)
+- Each selects their spoken language and the language to translate into
+- Record a short message (2-5 seconds)
+- Click Translate — see transcription, translation, and hear audio output
 
 ## Tech Stack
+- **VAD**: SileroVAD
+- **STT**: OpenAI Whisper (small)
+- **Translation**: Helsinki-NLP OPUS-MT (quantized, CPU-optimized)
+- **TTS**: gTTS
+- **UI**: Gradio
 
-- Whisper
-- IndicTrans2
-- Helsinki-NLP
-- Coqui TTS
-- Gradio
-- Python
+## Cost
+Rs. 0 — fully open source (gTTS requires internet for synthesis)
 
-## Goals
-
-- Real-time translation
-- Indian language support
-- Privacy-first architecture
-- Zero-cost demo implementation
-
-## Development Roadmap
-
-- [x] Repository Setup
-- [ ] Audio Capture
-- [ ] Whisper STT
-- [ ] Language Detection
-- [ ] Translation Layer
-- [ ] Text To Speech
-- [ ] Gradio UI
-- [ ] Real-Time Optimization
+## Author
+Akash Kumar | NIAMT Ranchi
